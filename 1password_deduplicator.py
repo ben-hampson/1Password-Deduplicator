@@ -45,7 +45,10 @@ def username(item):
 
 def password(item):
     cmd = f"op read op://{item['vault']['name']}/{item['id']}/password"
-    return run_command(cmd)
+    try:
+        return run_command(cmd)
+    except subprocess.CalledProcessError:
+        print(f"Exception while getting password for {item['title']}")
 
 
 def otp(item):
@@ -71,15 +74,15 @@ def delete(item):
     """Delete / archive the item in 1Password."""
     if dry_run:
         print(
-            f'To delete duplicate item {username(item)} with password {password(item)} in vault {item["vault"]["name"]} for site{"s" if len(domains(item)) > 1 else ""} {", ".join(domains(item))}, run again without the dry run flag.'
+            f'To delete duplicate item {item["title"]}, username {username(item)}, with password {password(item)} in vault {item["vault"]["name"]} for site{"s" if len(domains(item)) > 1 else ""} {", ".join(domains(item))}, run again without the dry run flag.'
         )
         item["trashed"] = "Y"
         return None
     if prompt:
         confirm = input(
-            f'Are you sure you want to delete duplicate item {username(item)} with password {password(item)} in vault {item["vault"]["name"]} for site{"s" if len(domains(item)) > 1 else ""} {", ".join(domains(item))}? (Y/n): '
+            f'Are you sure you want to delete duplicate item {item["title"]}, username {username(item)}, password {password(item)} in vault {item["vault"]["name"]} for site{"s" if len(domains(item)) > 1 else ""} {", ".join(domains(item))}? (Y/n): '
         )
-        if confirm != "Y":
+        if confirm.upper() != "Y":
             return None
     if archive:
         verb = "Archived"
@@ -88,7 +91,7 @@ def delete(item):
         run_command(f'op item delete {item["id"]}')
         verb = "Deleted"
     print(
-        f'{verb} duplicate item {username(item)} for site{"s" if len(domains(item)) > 1 else ""} {", ".join(domains(item))}'
+        f'{verb} duplicate item {item["title"]}, username {username(item)} for site{"s" if len(domains(item)) > 1 else ""} {", ".join(domains(item))}'
     )
     item["trashed"] = "Y"
 
@@ -183,3 +186,4 @@ if __name__ == "__main__":
     items = json.loads(run_command(cmd))
 
     run(items)
+    print("Finished.")
