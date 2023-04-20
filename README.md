@@ -1,5 +1,7 @@
 # 1Password Deduplicator
-Deletes duplicate login items in 1Password.
+Deletes duplicate login items in 1Password. 
+
+Based on the script originally made by [pauladams8](https://gist.github.com/pauladams8/1df2783103ee1594e7e82b3d9d182785).
 
 It looks at the URL and username of login items. If two items have the same URL and username, it will delete one of the items. Login items with OTP or a longer password are kept and the other is deleted.
 
@@ -26,6 +28,3 @@ python -m 1password_deduplicator -d
 --tag <tag>        - Only looks for duplicates with the given tag. (untested)
 --vault <vault>    - Only looks for duplicates in the given vault. (untested)
 ```
-
-## Credit
-Originally created by [pauladams8](https://gist.github.com/pauladams8/1df2783103ee1594e7e82b3d9d182785). I've made it work with the latest version of `op`, added one or two features, and made it more readable.
