@@ -43,21 +43,24 @@ def username(item):
     return item.get("additional_information", None)
 
 
-def password(item):
-    cmd = f"op read op://{item['vault']['name']}/{item['id']}/password"
-    try:
-        return run_command(cmd)
-    except subprocess.CalledProcessError:
-        print(f"Exception while getting password for {item['title']}")
+def password(item: dict):
+    if not "password" in item:
+        try:
+            cmd = f"op read op://{item['vault']['id']}/{item['id']}/password"
+            item['password'] = run_command(cmd).strip()
+        except subprocess.CalledProcessError:
+            print(f"Exception while getting password for {item['title']}")
+    return item["password"]
 
 
-def otp(item):
-    cmd = f"op item get {item['id']} --otp"
-    try:
-        result = int(run_command(cmd).strip("\n"))
-    except subprocess.CalledProcessError:
-        return None
-    return result
+def otp(item: dict):
+    if not "otp" in item:
+        try:
+            cmd = f"op item get {item['id']} --otp"
+            item['otp'] = int(run_command(cmd).strip("\n"))
+        except subprocess.CalledProcessError:
+            return None
+    return item['otp']
 
 
 def details(item):
@@ -122,9 +125,7 @@ def run(items: list):
             if existing_item.get("trashed", None) == "Y":
                 continue
 
-            if domains(new_item) != domains(existing_item) and password(
-                new_item
-            ) != password(existing_item):
+            if domains(new_item) != domains(existing_item):
                 continue
 
             # Keep the account with OTP or a longer password
