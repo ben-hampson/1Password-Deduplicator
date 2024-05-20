@@ -4,12 +4,12 @@ Deletes duplicate login items in 1Password.
 Based on the script originally made by [pauladams8](https://gist.github.com/pauladams8/1df2783103ee1594e7e82b3d9d182785).
 
 Items are considered dupes if all the folowing are true:
-* the domain of the URLs match (1Pass does not look at the whole URL when suggesting a password, only the domain)
+* the domain of the URLs match (1Pass does not look at the whole URL when suggesting a password, only the domain).
 * the usernames match.
 
 Determining which to keep is based on the following rules (in order):
 * If only one item has a one-time-password, it is preferred.
-* If there is a modified date for both items, then the item with the most recently modified date is preferred (old versions of 1Pass did not record this)
+* If there is a modified date for both items (old versions of 1Pass did not record this), then the item with the most recent modified date is preferred.
 * The item with a longer password is preferred.
 
 ## Setup
