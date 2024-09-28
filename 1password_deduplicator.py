@@ -88,7 +88,7 @@ def delete(item):
         confirm = input(
             f'Are you sure you want to delete duplicate item {item["title"]}, username {username(item)}, password {password(item)} in vault {item["vault"]["name"]} for site{"s" if len(domains(item)) > 1 else ""} {", ".join(domains(item))}, last updated_at on {updated_at(item)}? (Y/n): '
         )
-        if confirm.upper() != "Y":
+        if confirm and confirm.upper() != "Y":
             return None
     if archive:
         verb = "Archived"
