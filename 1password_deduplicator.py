@@ -44,7 +44,7 @@ def username(item):
 
 
 def password(item):
-    cmd = f"op read op://{item['vault']['name']}/{item['id']}/password"
+    cmd = f"op read op://{item['vault']['id']}/{item['id']}/password"
     try:
         return run_command(cmd)
     except subprocess.CalledProcessError:
