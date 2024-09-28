@@ -60,6 +60,12 @@ def otp(item):
     return result
 
 
+def updated_at(item):
+    if not "updated_at" in item:
+        item["updated_at"] = 0
+    return item["updated_at"]
+
+
 def details(item):
     if not "details" in item:
         item["details"] = json.loads(
@@ -74,13 +80,13 @@ def delete(item):
     """Delete / archive the item in 1Password."""
     if dry_run:
         print(
-            f'To delete duplicate item {item["title"]}, username {username(item)}, with password {password(item)} in vault {item["vault"]["name"]} for site{"s" if len(domains(item)) > 1 else ""} {", ".join(domains(item))}, run again without the dry run flag.'
+            f'To delete duplicate item {item["title"]}, username {username(item)}, with password {password(item)} in vault {item["vault"]["name"]} for site{"s" if len(domains(item)) > 1 else ""} {", ".join(domains(item))}, last updated_at on {updated_at(item)}, run again without the dry run flag.'
         )
         item["trashed"] = "Y"
         return None
     if prompt:
         confirm = input(
-            f'Are you sure you want to delete duplicate item {item["title"]}, username {username(item)}, password {password(item)} in vault {item["vault"]["name"]} for site{"s" if len(domains(item)) > 1 else ""} {", ".join(domains(item))}? (Y/n): '
+            f'Are you sure you want to delete duplicate item {item["title"]}, username {username(item)}, password {password(item)} in vault {item["vault"]["name"]} for site{"s" if len(domains(item)) > 1 else ""} {", ".join(domains(item))}, last updated_at on {updated_at(item)}? (Y/n): '
         )
         if confirm.upper() != "Y":
             return None
@@ -127,10 +133,20 @@ def run(items: list):
             ) != password(existing_item):
                 continue
 
-            # Keep the account with OTP or a longer password
-            if (otp(new_item) and not otp(existing_item)) or (
-                len(password(new_item)) > len(password(existing_item))
+            # Should we prefer (keep) the new or old item?
+            prefer_new = False
+
+            if (otp(new_item) and not otp(existing_item)):
+                prefer_new = True
+            elif (updated_at(new_item) and updated_at(existing_item) and
+                updated_at(new_item) > updated_at(existing_item)
             ):
+                prefer_new = True
+            elif (len(password(new_item)) > len(password(existing_item))):
+                prefer_new = True
+
+            # Delete the item we don't want.
+            if (prefer_new):
                 uniq[(domain_name, username(existing_item))] = new_item
                 delete(existing_item)
             else:
